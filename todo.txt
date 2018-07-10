@@ -2,6 +2,7 @@ Terminology:
   webaudio component: oscillators, gains, etc
   user: the code, which uses this lib
   patch: a set of instructions, which describe addition, removal or change on real elements in the browser
+  scheduling: we record the timestamp of NOW and when changing a parameter of any webaudio component, we time it relative to that time
 
 The planned route of events:
   1) the user manipulates a state object (JSON) - this might not be needed
@@ -18,11 +19,11 @@ Questions:
     -> maybe the AudioContext
     -> what about switching to OfflineAudioContext for generating and saving sound?
   How far can we go with changing webaudio components through scheduling?
-    -> Scheduling means, that we record the timestamp of NOW and when changing a parameter of any webaudio component, we time it to that time
     -> When a big change is happening (e.g. new element on the multitrack editor), then we update the NOW and corrigate/remove future schedules for webaudio components
+      -> the user should request a new NOW
     -> Ideally we would need to change everything through schedules, so that it can be exported into a wave
     -> Do we need to schedule everything?
-      -> The sequencer can be scheduled
-      -> The multitrack editor's (session's) playback can be scheduled
-      -> nothing else needs heavy scheduling
+      -> The sequencer can be scheduled - not our responsibility
+      -> The multitrack editor's (session's) playback can be scheduled - not our responsibility
+      -> nothing else needs heavy scheduling - until the user requests a new NOW, we keep scheduling
   Is there a use case for having a webaudio component detached from the 
