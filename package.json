@@ -1,0 +1,28 @@
+{
+  "name": "virtual-webaudio",
+  "version": "0.0.1",
+  "description": "A virtual representation of the web audio api elements with added diffing and patching capabilities",
+  "main": "index.js",
+  "scripts": {
+    "poc": "nodemon poc/server.js --watch poc -e js,html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/the-monochord/virtual-webaudio.git"
+  },
+  "keywords": [
+    "webaudio",
+    "javascript"
+  ],
+  "author": "Lajos Meszaros <m_lajos@hotmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/the-monochord/virtual-webaudio/issues"
+  },
+  "homepage": "https://github.com/the-monochord/virtual-webaudio#readme",
+  "devDependencies": {
+    "express": "^4.16.3",
+    "nodemon": "^1.18.3",
+    "reload": "^2.3.0"
+  }
+}
