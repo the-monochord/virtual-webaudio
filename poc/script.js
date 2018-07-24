@@ -13,18 +13,47 @@ we need an internal vocabulary of all the used nodes and the context
   multiple contexts?
 */
 
+const randomBetween = (min, max) => Math.floor(Math.random() * (max - min)) + min
+const uniqid = () => Date.now() + '-' + randomBetween(10000, 99999)
+
+const CTX_DESTINATION = 'ctx.destination'
+
+// TODO: how to represent connections, so that the diff tool doesn't recognize every element as a
+// new node, just becuase every node has their own ids?
+
 class VirtualAudioContext{
   constructor() {
-    this.destination = null
-    this.patch = {}
+    this.destination = CTX_DESTINATION
+    this.patch = {
+      create: {},
+      modify: {},
+      delete: {}
+    }
   }
   createOscillator() {
-    return {
+    const id = uniqid()
+
+    const data = {
       frequency: {
         value: 440
       },
-      connect: target => {
+      _: {
+        id,
+        type: 'oscillator',
+        connectedTo: null
+      }
+    }
 
+    this.patch.create[id] = data
+
+    return {
+      ...data,
+      connect: target => {
+        if (typeof target === 'object' && target._.id) {
+          data._.connectedTo = target._.id
+        } else if (target === CTX_DESTINATION) {
+          data._.connectedTo = target
+        }
       },
       start: () => {
 
@@ -32,12 +61,28 @@ class VirtualAudioContext{
     }
   }
   createGain() {
-    return {
+    const id = uniqid()
+    const data = {
       gain: {
         value: 1
       },
-      connect: target => {
+      _: {
+        id,
+        type: 'gain',
+        connectedTo: null
+      }
+    }
 
+    this.patch.create[id] = data
+
+    return {
+      ...data,
+      connect: target => {
+        if (typeof target === 'object' && target._.id) {
+          data._.connectedTo = target._.id
+        } else if (target === CTX_DESTINATION) {
+          data._.connectedTo = target
+        }
       }
     }
   }
@@ -46,9 +91,15 @@ class VirtualAudioContext{
 const diff = (virtualCtxA, virtualCtxB) => {
   const patchA = virtualCtxA.patch
   const patchB = virtualCtxB.patch
+
+  return {
+    create: {},
+    modify: {},
+    delete: {}
+  }
 }
 const patch = (patch, ctx) => {
-
+  console.log(patch)
 }
 const render = (virtualCtx, ctx) => {
   patch(virtualCtx.patch, ctx)
