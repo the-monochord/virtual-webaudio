@@ -13,16 +13,11 @@ we need an internal vocabulary of all the used nodes and the context
   multiple contexts?
 */
 
-const randomBetween = (min, max) => Math.floor(Math.random() * (max - min)) + min
-const uniqid = () => Date.now() + '-' + randomBetween(10000, 99999)
-
 const CTX_DESTINATION = 'ctx.destination'
-
-// TODO: how to represent connections, so that the diff tool doesn't recognize every element as a
-// new node, just becuase every node has their own ids?
 
 class VirtualAudioContext{
   constructor() {
+    this.pk = 0
     this.destination = CTX_DESTINATION
     this.patch = {
       create: {},
@@ -31,7 +26,7 @@ class VirtualAudioContext{
     }
   }
   createOscillator() {
-    const id = uniqid()
+    const id = ++this.pk + ''
 
     const data = {
       frequency: {
@@ -61,7 +56,8 @@ class VirtualAudioContext{
     }
   }
   createGain() {
-    const id = uniqid()
+    const id = ++this.pk + ''
+
     const data = {
       gain: {
         value: 1
@@ -92,6 +88,9 @@ const diff = (virtualCtxA, virtualCtxB) => {
   const patchA = virtualCtxA.patch
   const patchB = virtualCtxB.patch
 
+  console.log('patchA: ', patchA)
+  console.log('patchB:', patchB)
+
   return {
     create: {},
     modify: {},
@@ -99,7 +98,7 @@ const diff = (virtualCtxA, virtualCtxB) => {
   }
 }
 const patch = (patch, ctx) => {
-  console.log(patch)
+  
 }
 const render = (virtualCtx, ctx) => {
   patch(virtualCtx.patch, ctx)
