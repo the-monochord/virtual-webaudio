@@ -13,11 +13,42 @@ we need an internal vocabulary of all the used nodes and the context
   multiple contexts?
 */
 
+// TODO: VirtualAudioContext should only hold a single object of patches, which is the create
+// render() should wrap the patch into a {create: ..., modify: {}, delete: {}} format
+// diff() should expect only to get create datas from patches, should output {create: ..., modify: ..., delete: ...}
+
+const {
+  compose,
+  reject,
+  equals,
+  fromPairs,
+  map,
+  sort,
+  subtract,
+  apply,
+  union,
+  keys,
+  prop,
+  prepend,
+  of,
+  eqProps,
+  pluck
+} = R
+
 const CTX_DESTINATION = 'ctx.destination'
+
+class UniqueIdGenerator {
+  constructor (seed = 0) {
+    this.value = seed
+  }
+  generate () {
+    return ++this.value + ''
+  }
+}
 
 class VirtualAudioContext{
   constructor() {
-    this.pk = 0
+    this.uniqueIdGenerator = new UniqueIdGenerator(0)
     this.destination = CTX_DESTINATION
     this.patch = {
       create: {},
@@ -26,7 +57,7 @@ class VirtualAudioContext{
     }
   }
   createOscillator() {
-    const id = ++this.pk + ''
+    const id = this.uniqueIdGenerator.generate()
 
     const data = {
       frequency: {
@@ -35,7 +66,8 @@ class VirtualAudioContext{
       _: {
         id,
         type: 'oscillator',
-        connectedTo: null
+        connectedTo: null,
+        started: false
       }
     }
 
@@ -51,12 +83,12 @@ class VirtualAudioContext{
         }
       },
       start: () => {
-
+        data._.started = true
       }
     }
   }
   createGain() {
-    const id = ++this.pk + ''
+    const id = this.uniqueIdGenerator.generate()
 
     const data = {
       gain: {
@@ -84,12 +116,55 @@ class VirtualAudioContext{
   }
 }
 
+// -------------
+
+const getIds = (category, patches) => compose(
+  sort(subtract),
+  apply(union),
+  map(compose(keys, prop(category)))
+)(patches)
+
+// can we also return the same values too?
+// maybe remove the reject(equals(true)), keep the bool value and make the 2nd map to get values in all cases?
+// finally: call partition based on the bool value
+const getDiffs = (category, patches) => compose(
+  fromPairs,
+  map(id => compose(
+    prepend(id),
+    of,
+    pluck(id),
+    pluck(category)
+  )(patches)),
+  keys,
+  reject(equals(true)),
+  fromPairs,
+  map(id => compose(
+    prepend(id),
+    of,
+    apply(eqProps(id)),
+    pluck(category)
+  )(patches)),
+  getIds
+)(category, patches)
+
+// -------------
+
 const diff = (virtualCtxA, virtualCtxB) => {
   const patchA = virtualCtxA.patch
   const patchB = virtualCtxB.patch
 
-  console.log('patchA: ', patchA)
-  console.log('patchB:', patchB)
+  // const sameValues = ???
+  const differentValues = getDiffs('create', [patchA, patchB])
+
+  // values of differentValues can be:
+  //   [a, b] = modify - can also be delete + modify
+  //   [a, undefined] = delete
+  //   [undefined, a] = create
+  // ----
+  // what if an element was deleted and a new one created? "a" has type="gain" for #2, but "b" has type="oscillator" for #2?
+  // what if patchA or patchB has elements in modify or delete? (yes, the function should focus primarily on diffing "create" values, but for the sake of completeness...)
+
+  console.log(differentValues)
 
   return {
     create: {},
@@ -147,6 +222,9 @@ const b = modify()
 const ctx = new AudioContext()
 
 render(a, ctx)
+
 setTimeout(() => {
   patch(diff(a, b), ctx) // should turn off the gain's volume
 }, 1000)
+
+// next update = c --> patch(diff(b, c), ctx)
