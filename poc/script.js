@@ -50,11 +50,7 @@ class VirtualAudioContext{
   constructor() {
     this.uniqueIdGenerator = new UniqueIdGenerator(0)
     this.destination = CTX_DESTINATION
-    this.patch = {
-      create: {},
-      modify: {},
-      delete: {}
-    }
+    this.patch = {}
   }
   createOscillator() {
     const id = this.uniqueIdGenerator.generate()
@@ -71,7 +67,7 @@ class VirtualAudioContext{
       }
     }
 
-    this.patch.create[id] = data
+    this.patch[id] = data
 
     return {
       ...data,
@@ -101,7 +97,7 @@ class VirtualAudioContext{
       }
     }
 
-    this.patch.create[id] = data
+    this.patch[id] = data
 
     return {
       ...data,
@@ -118,6 +114,7 @@ class VirtualAudioContext{
 
 // -------------
 
+/*
 const getIds = (category, patches) => compose(
   sort(subtract),
   apply(union),
@@ -146,6 +143,7 @@ const getDiffs = (category, patches) => compose(
   )(patches)),
   getIds
 )(category, patches)
+*/
 
 // -------------
 
@@ -154,7 +152,7 @@ const diff = (virtualCtxA, virtualCtxB) => {
   const patchB = virtualCtxB.patch
 
   // const sameValues = ???
-  const differentValues = getDiffs('create', [patchA, patchB])
+  // const differentValues = getDiffs('create', [patchA, patchB])
 
   // values of differentValues can be:
   //   [a, b] = modify - can also be delete + modify
@@ -162,9 +160,8 @@ const diff = (virtualCtxA, virtualCtxB) => {
   //   [undefined, a] = create
   // ----
   // what if an element was deleted and a new one created? "a" has type="gain" for #2, but "b" has type="oscillator" for #2?
-  // what if patchA or patchB has elements in modify or delete? (yes, the function should focus primarily on diffing "create" values, but for the sake of completeness...)
 
-  console.log(differentValues)
+  // console.log(differentValues)
 
   return {
     create: {},
@@ -176,7 +173,11 @@ const patch = (patch, ctx) => {
   
 }
 const render = (virtualCtx, ctx) => {
-  patch(virtualCtx.patch, ctx)
+  patch({
+    create: virtualCtx.patch,
+    modify: {},
+    delete: {}
+  }, ctx)
 }
 
 // -------------
