@@ -46,66 +46,84 @@ class UniqueIdGenerator {
   }
 }
 
-class VirtualAudioContext{
-  constructor() {
-    this.uniqueIdGenerator = new UniqueIdGenerator(0)
-    this.destination = CTX_DESTINATION
-    this.patch = {}
+class Events {
+  constructor () {
+    this.data = {}
   }
-  createOscillator() {
-    const id = this.uniqueIdGenerator.generate()
-
-    const data = {
-      frequency: {
-        value: 440
-      },
-      _: {
-        id,
-        type: 'oscillator',
-        connectedTo: null,
-        started: false
-      }
+  add (eventName, param, targetId, time) {
+    if (!this.data[targetId]) {
+      this.data[targetId] = []
     }
 
-    this.patch[id] = data
+    this.data[targetId].push({
+      eventName,
+      param,
+      time
+    })
+  }
+}
+
+class VirtualAudioContext {
+  constructor () {
+    this.uniqueIdGenerator = new UniqueIdGenerator(0)
+    this.destination = CTX_DESTINATION
+    this.events = new Events()
+  }
+  get currentTime () {
+    // we should use relative timeing here, always starting from 0
+    return Date.now()
+  }
+  createOscillator () {
+    const id = this.uniqueIdGenerator.generate()
+    const events = this.events
+    // https://stackoverflow.com/a/4823030/1806628
+    const getCurrentTime = Object.getOwnPropertyDescriptor(VirtualAudioContext.prototype, 'currentTime').get.bind(this)
+
+    events.add('CREATE', 'oscillator', id, getCurrentTime())
 
     return {
-      ...data,
+      get id () {
+        return id
+      },
+      frequency: {
+        set value (newValue) {
+          events.add('UPDATE', {frequency: newValue}, id, getCurrentTime())
+        }
+      },
       connect: target => {
-        if (typeof target === 'object' && target._.id) {
-          data._.connectedTo = target._.id
+        if (typeof target === 'object' && target.id) {
+          events.add('CONNECT TO', target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          data._.connectedTo = target
+          events.add('CONNECT TO', target, id, getCurrentTime())
         }
       },
       start: () => {
-        data._.started = true
+        events.add('CALL', 'start', id, getCurrentTime())
       }
     }
   }
-  createGain() {
+  createGain () {
     const id = this.uniqueIdGenerator.generate()
+    const events = this.events
+    // https://stackoverflow.com/a/4823030/1806628
+    const getCurrentTime = Object.getOwnPropertyDescriptor(VirtualAudioContext.prototype, 'currentTime').get.bind(this)
 
-    const data = {
-      gain: {
-        value: 1
-      },
-      _: {
-        id,
-        type: 'gain',
-        connectedTo: null
-      }
-    }
-
-    this.patch[id] = data
+    events.add('CREATE', 'gain', id, getCurrentTime())
 
     return {
-      ...data,
+      get id () {
+        return id
+      },
+      gain: {
+        set value (newValue) {
+          events.add('UPDATE', {gain: newValue}, id, getCurrentTime())
+        }
+      },
       connect: target => {
-        if (typeof target === 'object' && target._.id) {
-          data._.connectedTo = target._.id
+        if (typeof target === 'object' && target.id) {
+          events.add('CONNECT TO', target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          data._.connectedTo = target
+          events.add('CONNECT TO', target, id, getCurrentTime())
         }
       }
     }
@@ -115,53 +133,10 @@ class VirtualAudioContext{
 // -------------
 
 /*
-const getIds = (category, patches) => compose(
-  sort(subtract),
-  apply(union),
-  map(compose(keys, prop(category)))
-)(patches)
-
-// can we also return the same values too?
-// maybe remove the reject(equals(true)), keep the bool value and make the 2nd map to get values in all cases?
-// finally: call partition based on the bool value
-const getDiffs = (category, patches) => compose(
-  fromPairs,
-  map(id => compose(
-    prepend(id),
-    of,
-    pluck(id),
-    pluck(category)
-  )(patches)),
-  keys,
-  reject(equals(true)),
-  fromPairs,
-  map(id => compose(
-    prepend(id),
-    of,
-    apply(eqProps(id)),
-    pluck(category)
-  )(patches)),
-  getIds
-)(category, patches)
-*/
-
-// -------------
-
 const diff = (virtualCtxA, virtualCtxB) => {
+  // TODO: real, absolute time should be calculated here
   const patchA = virtualCtxA.patch
   const patchB = virtualCtxB.patch
-
-  // const sameValues = ???
-  // const differentValues = getDiffs('create', [patchA, patchB])
-
-  // values of differentValues can be:
-  //   [a, b] = modify - can also be delete + modify
-  //   [a, undefined] = delete
-  //   [undefined, a] = create
-  // ----
-  // what if an element was deleted and a new one created? "a" has type="gain" for #2, but "b" has type="oscillator" for #2?
-
-  // console.log(differentValues)
 
   return {
     create: {},
@@ -173,12 +148,14 @@ const patch = (patch, ctx) => {
   
 }
 const render = (virtualCtx, ctx) => {
+  // TODO: real, absolute time should be calculated here
   patch({
     create: virtualCtx.patch,
     modify: {},
     delete: {}
   }, ctx)
 }
+*/
 
 // -------------
 
@@ -222,10 +199,14 @@ const a = create()
 const b = modify()
 const ctx = new AudioContext()
 
+/*
 render(a, ctx)
-
 setTimeout(() => {
   patch(diff(a, b), ctx) // should turn off the gain's volume
 }, 1000)
 
 // next update = c --> patch(diff(b, c), ctx)
+*/
+
+console.log(a.events.data)
+console.log(b.events.data)
