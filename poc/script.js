@@ -32,7 +32,10 @@ const {
   prepend,
   of,
   eqProps,
-  pluck
+  pluck,
+  add,
+  evolve,
+  forEach
 } = R
 
 const CTX_DESTINATION = 'ctx.destination'
@@ -42,20 +45,17 @@ class UniqueIdGenerator {
     this.value = seed
   }
   generate () {
-    return ++this.value + ''
+    return '#' + ++this.value
   }
 }
 
 class Events {
   constructor () {
-    this.data = {}
+    this.data = []
   }
   add (eventName, param, targetId, time) {
-    if (!this.data[targetId]) {
-      this.data[targetId] = []
-    }
-
-    this.data[targetId].push({
+    this.data.push({
+      targetId,
       eventName,
       param,
       time
@@ -68,10 +68,10 @@ class VirtualAudioContext {
     this.uniqueIdGenerator = new UniqueIdGenerator(0)
     this.destination = CTX_DESTINATION
     this.events = new Events()
+    this.initialTime = Date.now()
   }
   get currentTime () {
-    // we should use relative timeing here, always starting from 0
-    return Date.now()
+    return Date.now() - this.initialTime
   }
   createOscillator () {
     const id = this.uniqueIdGenerator.generate()
@@ -132,30 +132,32 @@ class VirtualAudioContext {
 
 // -------------
 
-/*
 const diff = (virtualCtxA, virtualCtxB) => {
-  // TODO: real, absolute time should be calculated here
-  const patchA = virtualCtxA.patch
-  const patchB = virtualCtxB.patch
+  const a = virtualCtxA.events.data
+  const b = virtualCtxB.events.data
 
-  return {
-    create: {},
-    modify: {},
-    delete: {}
-  }
+  // skip events, which are the same - equals(a, b)
+  // removed events should be inverted - ???
+  // added events should be kept as is
+
+  return []
 }
-const patch = (patch, ctx) => {
-  
+const patch = (eventsData, ctx) => {
+  const now = Date.now()
+
+  compose(
+    forEach(({targetId, eventName, param, time}) => {
+      console.log(targetId, eventName, param, time)
+    }),
+    // TODO: SORT BY targetId, time DESC,
+    map(evolve({
+      time: add(now)
+    }))
+  )(eventsData)
 }
 const render = (virtualCtx, ctx) => {
-  // TODO: real, absolute time should be calculated here
-  patch({
-    create: virtualCtx.patch,
-    modify: {},
-    delete: {}
-  }, ctx)
+  patch(virtualCtx.events.data, ctx)
 }
-*/
 
 // -------------
 
@@ -199,14 +201,12 @@ const a = create()
 const b = modify()
 const ctx = new AudioContext()
 
-/*
 render(a, ctx)
 setTimeout(() => {
   patch(diff(a, b), ctx) // should turn off the gain's volume
 }, 1000)
 
-// next update = c --> patch(diff(b, c), ctx)
-*/
-
+/*
 console.log(a.events.data)
 console.log(b.events.data)
+*/
