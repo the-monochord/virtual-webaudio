@@ -35,7 +35,8 @@ const {
   pluck,
   add,
   evolve,
-  forEach
+  forEach,
+  without
 } = R
 
 const CTX_DESTINATION = 'ctx.destination'
@@ -71,7 +72,7 @@ class VirtualAudioContext {
     this.initialTime = Date.now()
   }
   get currentTime () {
-    return Date.now() - this.initialTime
+    return Math.floor((Date.now() - this.initialTime) / 10) * 10 // manual 10ms throttle
   }
   createOscillator () {
     const id = this.uniqueIdGenerator.generate()
@@ -133,30 +134,56 @@ class VirtualAudioContext {
 // -------------
 
 const diff = (virtualCtxA, virtualCtxB) => {
-  const a = virtualCtxA.events.data
-  const b = virtualCtxB.events.data
+  const a = map(JSON.stringify, virtualCtxA.events.data)
+  const b = map(JSON.stringify, virtualCtxB.events.data)
 
-  // skip events, which are the same - equals(a, b)
-  // removed events should be inverted - ???
-  // added events should be kept as is
+  const removed = map(JSON.parse, without(b, a))
+  const added = map(JSON.parse, without(a, b))
 
-  return []
+  // check for entries in removed and added to see, if any of them can be joined into an entry in modified
+  // remaining removed events should be inverted, eg: CONNECT -> DISCONNECT
+
+  return {
+    added: added,
+    removed: removed,
+    modified: []
+  }
 }
-const patch = (eventsData, ctx) => {
+const patch = ({ added, removed, modified }, ctx) => {
   const now = Date.now()
+
+  console.log('patching')
+
+  console.log(' --- removing:')
 
   compose(
     forEach(({targetId, eventName, param, time}) => {
       console.log(targetId, eventName, param, time)
     }),
-    // TODO: SORT BY targetId, time DESC,
+    // TODO: SORT BY targetId, time DESC
     map(evolve({
       time: add(now)
     }))
-  )(eventsData)
+  )(removed)
+
+  console.log(' --- adding:')
+
+  compose(
+    forEach(({targetId, eventName, param, time}) => {
+      console.log(targetId, eventName, param, time)
+    }),
+    // TODO: SORT BY targetId, time DESC
+    map(evolve({
+      time: add(now)
+    }))
+  )(added)
 }
 const render = (virtualCtx, ctx) => {
-  patch(virtualCtx.events.data, ctx)
+  patch({
+    added: virtualCtx.events.data,
+    removed: [],
+    modified: []
+  }, ctx)
 }
 
 // -------------
