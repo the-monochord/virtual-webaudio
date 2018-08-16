@@ -36,10 +36,20 @@ const {
   add,
   evolve,
   forEach,
-  without
+  without,
+  propEq,
+  mergeDeepRight
 } = R
 
 const CTX_DESTINATION = 'ctx.destination'
+
+const EVENTS = {
+  NOOP: 'NOP',
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  CONNECT_TO: 'CONNECT TO',
+  CALL: 'CALL'
+}
 
 class UniqueIdGenerator {
   constructor (seed = 0) {
@@ -80,7 +90,7 @@ class VirtualAudioContext {
     // https://stackoverflow.com/a/4823030/1806628
     const getCurrentTime = Object.getOwnPropertyDescriptor(VirtualAudioContext.prototype, 'currentTime').get.bind(this)
 
-    events.add('CREATE', 'oscillator', id, getCurrentTime())
+    events.add(EVENTS.CREATE, 'oscillator', id, getCurrentTime())
 
     return {
       get id () {
@@ -88,18 +98,18 @@ class VirtualAudioContext {
       },
       frequency: {
         set value (newValue) {
-          events.add('UPDATE', {frequency: newValue}, id, getCurrentTime())
+          events.add(EVENTS.UPDATE, {frequency: newValue}, id, getCurrentTime())
         }
       },
       connect: target => {
         if (typeof target === 'object' && target.id) {
-          events.add('CONNECT TO', target.id, id, getCurrentTime())
+          events.add(EVENTS.CONNECT_TO, target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          events.add('CONNECT TO', target, id, getCurrentTime())
+          events.add(EVENTS.CONNECT_TO, target, id, getCurrentTime())
         }
       },
       start: () => {
-        events.add('CALL', 'start', id, getCurrentTime())
+        events.add(EVENTS.CALL, 'start', id, getCurrentTime())
       }
     }
   }
@@ -109,7 +119,7 @@ class VirtualAudioContext {
     // https://stackoverflow.com/a/4823030/1806628
     const getCurrentTime = Object.getOwnPropertyDescriptor(VirtualAudioContext.prototype, 'currentTime').get.bind(this)
 
-    events.add('CREATE', 'gain', id, getCurrentTime())
+    events.add(EVENTS.CREATE, 'gain', id, getCurrentTime())
 
     return {
       get id () {
@@ -117,14 +127,14 @@ class VirtualAudioContext {
       },
       gain: {
         set value (newValue) {
-          events.add('UPDATE', {gain: newValue}, id, getCurrentTime())
+          events.add(EVENTS.UPDATE, {gain: newValue}, id, getCurrentTime())
         }
       },
       connect: target => {
         if (typeof target === 'object' && target.id) {
-          events.add('CONNECT TO', target.id, id, getCurrentTime())
+          events.add(EVENTS.CONNECT_TO, target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          events.add('CONNECT TO', target, id, getCurrentTime())
+          events.add(EVENTS.CONNECT_TO, target, id, getCurrentTime())
         }
       }
     }
@@ -133,57 +143,52 @@ class VirtualAudioContext {
 
 // -------------
 
+const invertEvent = ({ targetId, eventName, param, time }) => {
+  const eventData = {
+    targetId,
+    eventName,
+    param,
+    time
+  }
+
+  // switch () {}
+  
+  return eventData
+}
+
 const diff = (virtualCtxA, virtualCtxB) => {
   const a = map(JSON.stringify, virtualCtxA.events.data)
   const b = map(JSON.stringify, virtualCtxB.events.data)
 
-  const removed = map(JSON.parse, without(b, a))
+  const removed = compose(
+    reject(propEq('eventName', EVENTS.NOP)),
+    map(compose(
+      invertEvent,
+      JSON.parse
+    )),
+    without
+  )(b, a)
   const added = map(JSON.parse, without(a, b))
 
-  // check for entries in removed and added to see, if any of them can be joined into an entry in modified
-  // remaining removed events should be inverted, eg: CONNECT -> DISCONNECT
-
-  return {
-    added: added,
-    removed: removed,
-    modified: []
-  }
+  return mergeDeepRight(added, removed)
 }
-const patch = ({ added, removed, modified }, ctx) => {
+
+const patch = (eventsData, ctx) => {
   const now = Date.now()
 
-  console.log('patching')
-
-  console.log(' --- removing:')
-
   compose(
-    forEach(({targetId, eventName, param, time}) => {
-      console.log(targetId, eventName, param, time)
+    forEach(({ targetId, eventName, param, time }) => {
+      // console.log(targetId, eventName, param, time)
     }),
     // TODO: SORT BY targetId, time DESC
     map(evolve({
       time: add(now)
     }))
-  )(removed)
-
-  console.log(' --- adding:')
-
-  compose(
-    forEach(({targetId, eventName, param, time}) => {
-      console.log(targetId, eventName, param, time)
-    }),
-    // TODO: SORT BY targetId, time DESC
-    map(evolve({
-      time: add(now)
-    }))
-  )(added)
+  )(eventsData)
 }
+
 const render = (virtualCtx, ctx) => {
-  patch({
-    added: virtualCtx.events.data,
-    removed: [],
-    modified: []
-  }, ctx)
+  patch(virtualCtx.events.data, ctx)
 }
 
 // -------------
