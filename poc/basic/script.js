@@ -1,3 +1,5 @@
+/* global VirtualAudioContext, patch, render, diff, AudioContext */
+
 const create = () => {
   const ctx = new VirtualAudioContext()
 

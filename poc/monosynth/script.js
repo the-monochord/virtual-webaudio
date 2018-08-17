@@ -1,3 +1,5 @@
+/* global VirtualAudioContext, patch, render, diff, AudioContext */
+
 const sound = (frequency, volume) => {
   const ctx = new VirtualAudioContext()
 

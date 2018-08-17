@@ -1,19 +1,9 @@
+/* global R */
+
 const {
   compose,
   reject,
-  equals,
-  fromPairs,
   map,
-  sort,
-  subtract,
-  apply,
-  union,
-  keys,
-  prop,
-  prepend,
-  of,
-  eqProps,
-  pluck,
   add,
   evolve,
   forEach,
@@ -85,6 +75,9 @@ class VirtualAudioContext {
       frequency: {
         set value (newValue) {
           events.add(EVENTS.UPDATE, {frequency: newValue}, id, getCurrentTime())
+        },
+        get value () {
+          return 440
         }
       },
       connect: target => {
@@ -114,6 +107,9 @@ class VirtualAudioContext {
       gain: {
         set value (newValue) {
           events.add(EVENTS.UPDATE, {gain: newValue}, id, getCurrentTime())
+        },
+        get value () {
+          return 1
         }
       },
       connect: target => {
@@ -151,9 +147,10 @@ const invertEvent = ({ targetId, eventName, param, time }) => {
       switch (param) {
         case 'start':
           eventData.param = 'stop'
-        break
+          break
         case 'stop':
           eventData.param = 'start'
+          break
         default:
           console.error('unknown command', param)
       }
@@ -162,7 +159,7 @@ const invertEvent = ({ targetId, eventName, param, time }) => {
       console.error('unknown event', eventName)
       break
   }
-  
+
   return eventData
 }
 
@@ -171,7 +168,7 @@ const getNodeById = (id, ctx) => {
 }
 
 const setNodeById = (id, node, ctx) => {
-  if(!ctx._nodes){
+  if (!ctx._nodes) {
     ctx._nodes = {}
   }
   ctx._nodes[id] = node
@@ -182,8 +179,8 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
   // TODO: how to deal with time?
 
   switch (eventName) {
-    case EVENTS.CREATE: {
-      switch(param){
+    case EVENTS.CREATE:
+      switch (param) {
         case 'oscillator': {
           const node = ctx.createOscillator()
           setNodeById(targetId, node, ctx)
@@ -198,7 +195,6 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
           console.error('unknown node type', param)
         }
       }
-    }
       break
     case EVENTS.UPDATE: {
       const node = getNodeById(targetId, ctx)
@@ -206,7 +202,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
       node[key].value = value
     }
       break
-    case EVENTS.CONNECT:{
+    case EVENTS.CONNECT: {
       const node = getNodeById(targetId, ctx)
       const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
 
@@ -216,26 +212,23 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
     case EVENTS.CALL: {
       const node = getNodeById(targetId, ctx)
 
-      switch(param){
-        case 'start': {
+      switch (param) {
+        case 'start':
           node.start()
-        }
-        break
-        case 'stop': {
+          break
+        case 'stop':
           node.stop()
-        }
-        break
+          break
         default: {
           console.error('unknown command', param)
         }
       }
     }
       break
-    case EVENTS.REMOVE:{
+    case EVENTS.REMOVE:
       // TODO
-    }
       break
-    case DISCONNECT: {
+    case EVENTS.DISCONNECT: {
       const node = getNodeById(targetId, ctx)
       const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
 
@@ -281,3 +274,20 @@ const patch = (eventsData, ctx) => {
 const render = (virtualCtx, ctx) => {
   patch(virtualCtx.events.data, ctx)
 }
+
+/*
+export {
+  CTX_DESTINATION,
+  EVENTS,
+  UniqueIdGenerator,
+  Events,
+  VirtualAudioContext,
+  invertEvent,
+  getNodeById,
+  setNodeById,
+  applyEventToContext,
+  diff,
+  patch,
+  render
+}
+*/

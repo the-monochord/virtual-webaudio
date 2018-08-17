@@ -1,3 +1,5 @@
+/* global VirtualAudioContext, patch, render, diff, AudioContext */
+
 const sound = (frequency, volume) => {
   const ctx = new VirtualAudioContext()
 
@@ -45,7 +47,7 @@ setInterval(() => {
       lfoDirection = '+'
     }
   }
-  
+
   change(sound(440, masterVolume), ctx)
 }, 50)
 
