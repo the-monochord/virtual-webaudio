@@ -27,3 +27,6 @@ Questions:
       -> The multitrack editor's (session's) playback can be scheduled - not our responsibility
       -> nothing else needs heavy scheduling - until the user requests a new NOW, we keep scheduling
   Is there a use case for having a webaudio component detached from the context?
+
+Next POC to work on:
+  Handle time and allow recording of the monosynth, which then can be played back with the press of a button
