@@ -13,10 +13,6 @@ we need an internal vocabulary of all the used nodes and the context
   multiple contexts?
 */
 
-// TODO: VirtualAudioContext should only hold a single object of patches, which is the create
-// render() should wrap the patch into a {create: ..., modify: {}, delete: {}} format
-// diff() should expect only to get create datas from patches, should output {create: ..., modify: ..., delete: ...}
-
 const {
   compose,
   reject,
@@ -38,17 +34,22 @@ const {
   forEach,
   without,
   propEq,
-  mergeDeepRight
+  concat,
+  curry,
+  __,
+  toPairs
 } = R
 
 const CTX_DESTINATION = 'ctx.destination'
 
 const EVENTS = {
-  NOOP: 'NOP',
   CREATE: 'CREATE',
   UPDATE: 'UPDATE',
-  CONNECT_TO: 'CONNECT TO',
-  CALL: 'CALL'
+  CONNECT: 'CONNECT',
+  CALL: 'CALL',
+  REMOVE: 'REMOVE', // how to implement this? the code would have something like "delete osc;" and not have a function call to hook onto
+  NOP: 'NOP',
+  DISCONNECT: 'DISCONNECT'
 }
 
 class UniqueIdGenerator {
@@ -103,9 +104,9 @@ class VirtualAudioContext {
       },
       connect: target => {
         if (typeof target === 'object' && target.id) {
-          events.add(EVENTS.CONNECT_TO, target.id, id, getCurrentTime())
+          events.add(EVENTS.CONNECT, target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          events.add(EVENTS.CONNECT_TO, target, id, getCurrentTime())
+          events.add(EVENTS.CONNECT, target, id, getCurrentTime())
         }
       },
       start: () => {
@@ -132,9 +133,9 @@ class VirtualAudioContext {
       },
       connect: target => {
         if (typeof target === 'object' && target.id) {
-          events.add(EVENTS.CONNECT_TO, target.id, id, getCurrentTime())
+          events.add(EVENTS.CONNECT, target.id, id, getCurrentTime())
         } else if (target === CTX_DESTINATION) {
-          events.add(EVENTS.CONNECT_TO, target, id, getCurrentTime())
+          events.add(EVENTS.CONNECT, target, id, getCurrentTime())
         }
       }
     }
@@ -151,10 +152,116 @@ const invertEvent = ({ targetId, eventName, param, time }) => {
     time
   }
 
-  // switch () {}
+  switch (eventName) {
+    case EVENTS.CREATE:
+      eventData.eventName = EVENTS.REMOVE
+      break
+    case EVENTS.UPDATE:
+      eventData.eventName = EVENTS.NOP
+      break
+    case EVENTS.CONNECT:
+      eventData.eventName = EVENTS.DISCONNECT
+      break
+    case EVENTS.CALL:
+      switch (param) {
+        case 'start':
+          eventData.param = 'stop'
+        break
+        case 'stop':
+          eventData.param = 'start'
+        default:
+          console.error('unknown command', param)
+      }
+      break
+    default:
+      console.error('unknown event', eventName)
+      break
+  }
   
   return eventData
 }
+
+const getNodeById = (id, ctx) => {
+  return ctx._nodes[id]
+}
+
+const setNodeById = (id, node, ctx) => {
+  if(!ctx._nodes){
+    ctx._nodes = {}
+  }
+  ctx._nodes[id] = node
+}
+
+const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) => {
+  console.log(targetId, eventName, param, time)
+  // TODO: how to deal with time?
+
+  switch (eventName) {
+    case EVENTS.CREATE: {
+      switch(param){
+        case 'oscillator': {
+          const node = ctx.createOscillator()
+          setNodeById(targetId, node, ctx)
+        }
+          break
+        case 'gain': {
+          const node = ctx.createGain()
+          setNodeById(targetId, node, ctx)
+        }
+          break
+        default: {
+          console.error('unknown node type', param)
+        }
+      }
+    }
+      break
+    case EVENTS.UPDATE: {
+      const node = getNodeById(targetId, ctx)
+      const [key, value] = toPairs(param)[0]
+      node[key].value = value
+    }
+      break
+    case EVENTS.CONNECT:{
+      const node = getNodeById(targetId, ctx)
+      const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
+
+      node.connect(target)
+    }
+      break
+    case EVENTS.CALL: {
+      const node = getNodeById(targetId, ctx)
+
+      switch(param){
+        case 'start': {
+          node.start()
+        }
+        break
+        case 'stop': {
+          node.stop()
+        }
+        break
+        default: {
+          console.error('unknown command', param)
+        }
+      }
+    }
+      break
+    case EVENTS.REMOVE:{
+      // TODO
+    }
+      break
+    case DISCONNECT: {
+      const node = getNodeById(targetId, ctx)
+      const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
+
+      node.disconnect(target)
+    }
+      break
+    default: {
+      console.error('unknown event', eventName)
+    }
+  }
+})
 
 const diff = (virtualCtxA, virtualCtxB) => {
   const a = map(JSON.stringify, virtualCtxA.events.data)
@@ -168,18 +275,17 @@ const diff = (virtualCtxA, virtualCtxB) => {
     )),
     without
   )(b, a)
+
   const added = map(JSON.parse, without(a, b))
 
-  return mergeDeepRight(added, removed)
+  return concat(removed, added)
 }
 
 const patch = (eventsData, ctx) => {
   const now = Date.now()
 
   compose(
-    forEach(({ targetId, eventName, param, time }) => {
-      // console.log(targetId, eventName, param, time)
-    }),
+    forEach(applyEventToContext(__, ctx)),
     // TODO: SORT BY targetId, time DESC
     map(evolve({
       time: add(now)
@@ -235,10 +341,6 @@ const ctx = new AudioContext()
 
 render(a, ctx)
 setTimeout(() => {
+  console.log('a second later:')
   patch(diff(a, b), ctx) // should turn off the gain's volume
 }, 1000)
-
-/*
-console.log(a.events.data)
-console.log(b.events.data)
-*/
