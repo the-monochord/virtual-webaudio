@@ -1,15 +1,21 @@
 {
   "name": "virtual-webaudio",
-  "version": "0.0.1",
+  "version": "0.0.0-development",
   "description": "A virtual representation of the web audio api elements with added diffing and patching capabilities",
   "main": "index.js",
   "scripts": {
     "poc": "nodemon poc/server.js --watch poc -e js,html",
-    "lint": "eslint poc --fix"
+    "lint": "eslint src --fix",
+    "stage-after-lint": "git add src",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
+  "pre-commit": [
+    "lint",
+    "stage-after-lint"
+  ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/the-monochord/virtual-webaudio.git"
+    "url": "https://github.com/the-monochord/virtual-webaudio.git"
   },
   "keywords": [
     "webaudio",
@@ -22,6 +28,7 @@
   },
   "homepage": "https://github.com/the-monochord/virtual-webaudio#readme",
   "devDependencies": {
+    "cz-conventional-changelog": "^2.1.0",
     "eslint": "^5.3.0",
     "eslint-config-standard": "^11.0.0",
     "eslint-plugin-import": "^2.14.0",
@@ -30,6 +37,13 @@
     "eslint-plugin-standard": "^3.1.0",
     "express": "^4.16.3",
     "nodemon": "^1.18.3",
-    "reload": "^2.3.1"
+    "pre-commit": "^1.2.2",
+    "reload": "^2.3.1",
+    "semantic-release": "^15.9.9"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

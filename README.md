@@ -2,6 +2,8 @@
 
 A virtual representation of the web audio api elements with added diffing and patching capabilities.
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 ## Demos
 
 `poc/basic/` - Basic example, turning a sound on, then off after a second
