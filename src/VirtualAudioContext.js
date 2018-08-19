@@ -24,12 +24,28 @@ class VirtualAudioContext {
       get id () {
         return id
       },
+      type: {
+        set value (newValue) {
+          events.add(EVENTS.UPDATE, null, id, getCurrentTime(), [{type: newValue}])
+        },
+        get value () {
+          return 'sine'
+        }
+      },
       frequency: {
         set value (newValue) {
           events.add(EVENTS.UPDATE, null, id, getCurrentTime(), [{frequency: newValue}])
         },
         get value () {
           return 440
+        }
+      },
+      detune: {
+        set value (newValue) {
+          events.add(EVENTS.UPDATE, null, id, getCurrentTime(), [{detune: newValue}])
+        },
+        get value () {
+          return 0
         }
       },
       connect: target => {
