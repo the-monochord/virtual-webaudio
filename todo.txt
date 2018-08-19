@@ -30,3 +30,6 @@ Questions:
 
 Next POC to work on:
   Handle time and allow recording of the monosynth, which then can be played back with the press of a button
+  // node.parameter.setValueAtTime
+  // node.cancelScheduledValues
+  // ctx.createPeriodicWave

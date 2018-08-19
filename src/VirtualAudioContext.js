@@ -41,6 +41,9 @@ class VirtualAudioContext {
       },
       start: () => {
         events.add(EVENTS.CALL, 'start', id, getCurrentTime())
+      },
+      stop: () => {
+        events.add(EVENTS.CALL, 'stop', id, getCurrentTime())
       }
     }
   }
