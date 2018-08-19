@@ -1,48 +1,30 @@
 import {
   curry,
-  toPairs
+  toPairs,
+  cond,
+  propEq,
+  assoc,
+  T
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
 
-const invertEvent = ({ targetId, eventName, param, time, args }) => {
-  const eventData = {
-    targetId,
-    eventName,
-    param,
-    time,
-    args
-  }
-
-  switch (eventName) {
-    case EVENTS.CREATE:
-      eventData.eventName = EVENTS.REMOVE
-      break
-    case EVENTS.UPDATE:
-      eventData.eventName = EVENTS.NOP
-      break
-    case EVENTS.CONNECT:
-      eventData.eventName = EVENTS.DISCONNECT
-      break
-    case EVENTS.CALL:
-      switch (param) {
-        case 'start':
-          eventData.param = 'stop'
-          break
-        case 'stop':
-          eventData.param = 'start'
-          break
-        default:
-          console.error('unknown command', param)
-      }
-      break
-    default:
-      console.error('unknown event', eventName)
-      break
-  }
-
-  return eventData
-}
+const invertEvent = cond([
+  [propEq('eventName', EVENTS.CREATE), assoc('eventName', EVENTS.REMOVE)],
+  [propEq('eventName', EVENTS.UPDATE), assoc('eventName', EVENTS.NOP)],
+  [propEq('eventName', EVENTS.CONNECT), assoc('eventName', EVENTS.DISCONNECT)],
+  [propEq('eventName', EVENTS.DISCONNECT), assoc('eventName', EVENTS.CONNECT)],
+  [propEq('eventName', EVENTS.CALL), cond([
+    [propEq('param', 'start'), assoc('param', 'stop')],
+    [propEq('param', 'stop'), assoc('param', 'start')],
+    [T, ({ param }) => {
+      console.error(`unknown command ${param}`)
+    }]
+  ])],
+  [T, ({ eventName }) => {
+    console.error(`unknown event ${eventName}`)
+  }]
+])
 
 const getNodeById = (id, ctx) => {
   return ctx._nodes[id]
