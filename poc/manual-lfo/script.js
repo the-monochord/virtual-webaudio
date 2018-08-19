@@ -37,18 +37,18 @@ let lfoDirection = '+'
 
 setInterval(() => {
   if (lfoDirection === '+') {
-    masterVolume += 0.1
+    masterVolume += 0.03
     if (masterVolume > 0.9) {
       lfoDirection = '-'
     }
   } else {
-    masterVolume -= 0.1
+    masterVolume -= 0.03
     if (masterVolume < 0.1) {
       lfoDirection = '+'
     }
   }
 
   change(sound(440, masterVolume), ctx)
-}, 50)
+}, 30)
 
 change(sound(440, masterVolume), ctx)

@@ -39,14 +39,14 @@ class VirtualAudioContext {
           events.add(EVENTS.CONNECT, target, id, getCurrentTime())
         }
       },
-      start: () => {
-        events.add(EVENTS.CALL, 'start', id, getCurrentTime())
+      start: (...args) => {
+        events.add(EVENTS.CALL, 'start', id, getCurrentTime(), args)
       },
-      stop: () => {
-        events.add(EVENTS.CALL, 'stop', id, getCurrentTime())
+      stop: (...args) => {
+        events.add(EVENTS.CALL, 'stop', id, getCurrentTime(), args)
       },
-      setPeriodicWave: (waveTable) => {
-        events.add(EVENTS.CALL, 'setPeriodicWave', id, getCurrentTime(), [waveTable])
+      setPeriodicWave: (...args) => {
+        events.add(EVENTS.CALL, 'setPeriodicWave', id, getCurrentTime(), args)
       }
     }
   }

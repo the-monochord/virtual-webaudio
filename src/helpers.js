@@ -89,13 +89,9 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
 
       switch (param) {
         case 'start':
-          node.start()
-          break
         case 'stop':
-          node.stop()
-          break
         case 'setPeriodicWave':
-          apply(node.setPeriodicWave, args)
+          apply(node[param], args)
           break
         default: {
           console.error('unknown command', param)
