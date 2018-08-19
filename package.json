@@ -1,5 +1,6 @@
 {
   "name": "virtual-webaudio",
+  "title": "Virtual WebAudio",
   "version": "0.0.0-development",
   "description": "A virtual representation of the web audio api elements with added diffing and patching capabilities",
   "main": "index.js",
