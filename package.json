@@ -8,7 +8,7 @@
     "poc": "nodemon poc/server.js --watch poc -e js,html",
     "lint": "eslint src --fix",
     "stage-after-lint": "git add src",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post",
+    "semantic-release": "semantic-release",
     "commit": "git-cz",
     "commit:again": "git-cz --retry"
   },
