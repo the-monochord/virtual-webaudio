@@ -3,7 +3,7 @@
   "title": "Virtual WebAudio",
   "version": "0.0.0-development",
   "description": "A virtual representation of the web audio api elements with added diffing and patching capabilities",
-  "main": "index.js",
+  "main": "src/virtual-webaudio.js",
   "scripts": {
     "poc": "nodemon poc/server.js --watch poc -e js,html",
     "lint": "eslint src --fix",
@@ -48,5 +48,8 @@
     "commitizen": {
       "path": "./node_modules/cz-conventional-changelog"
     }
+  },
+  "dependencies": {
+    "ramda": "^0.25.0"
   }
 }

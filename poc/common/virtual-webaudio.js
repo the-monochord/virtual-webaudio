@@ -22,7 +22,7 @@ const EVENTS = {
   UPDATE: 'UPDATE',
   CONNECT: 'CONNECT',
   CALL: 'CALL',
-  REMOVE: 'REMOVE', // how to implement this? the code would have something like "delete osc;" and not have a function call to hook onto
+  REMOVE: 'REMOVE',
   NOP: 'NOP',
   DISCONNECT: 'DISCONNECT'
 }
