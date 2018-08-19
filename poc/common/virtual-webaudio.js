@@ -174,6 +174,10 @@ const setNodeById = (id, node, ctx) => {
   ctx._nodes[id] = node
 }
 
+const removeNodeById = (id, ctx) => {
+  delete ctx._nodes[id]
+}
+
 const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) => {
   console.log(targetId, eventName, param, time)
   // TODO: how to deal with time?
@@ -226,7 +230,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
     }
       break
     case EVENTS.REMOVE:
-      // TODO
+      removeNodeById(targetId, ctx)
       break
     case EVENTS.DISCONNECT: {
       const node = getNodeById(targetId, ctx)
