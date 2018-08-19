@@ -5,12 +5,13 @@ import {
 
 import { CTX_DESTINATION, EVENTS } from './constants'
 
-const invertEvent = ({ targetId, eventName, param, time }) => {
+const invertEvent = ({ targetId, eventName, param, time, args }) => {
   const eventData = {
     targetId,
     eventName,
     param,
-    time
+    time,
+    args
   }
 
   switch (eventName) {
@@ -58,8 +59,8 @@ const removeNodeById = (id, ctx) => {
   delete ctx._nodes[id]
 }
 
-const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) => {
-  console.log(targetId, eventName, param, time)
+const applyEventToContext = curry(({ targetId, eventName, param, time, args }, ctx) => {
+  console.log(targetId, eventName, param, time, args)
   // TODO: how to deal with time?
 
   switch (eventName) {
@@ -82,7 +83,8 @@ const applyEventToContext = curry(({ targetId, eventName, param, time }, ctx) =>
       break
     case EVENTS.UPDATE: {
       const node = getNodeById(targetId, ctx)
-      const [key, value] = toPairs(param)[0]
+      const [key, value] = toPairs(args)[0]
+
       node[key].value = value
     }
       break

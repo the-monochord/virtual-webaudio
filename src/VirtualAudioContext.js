@@ -26,7 +26,7 @@ class VirtualAudioContext {
       },
       frequency: {
         set value (newValue) {
-          events.add(EVENTS.UPDATE, {frequency: newValue}, id, getCurrentTime())
+          events.add(EVENTS.UPDATE, null, id, getCurrentTime(), [{frequency: newValue}])
         },
         get value () {
           return 440
@@ -61,7 +61,7 @@ class VirtualAudioContext {
       },
       gain: {
         set value (newValue) {
-          events.add(EVENTS.UPDATE, {gain: newValue}, id, getCurrentTime())
+          events.add(EVENTS.UPDATE, null, id, getCurrentTime(), [{gain: newValue}])
         },
         get value () {
           return 1
