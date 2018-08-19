@@ -30,5 +30,16 @@ Questions:
 
 Next POC to work on:
   Handle time and allow recording of the monosynth, which then can be played back with the press of a button
-  // node.parameter.setValueAtTime
-  // node.cancelScheduledValues
+    oscillator -> AudioNode
+    gain -> AudioNode
+
+    oscillator.frequency -> AudioParam
+    gain.gain -> AudioParam
+
+    AudioParam.setValueAtTime()
+    AudioParam.linearRampToValueAtTime()
+    AudioParam.exponentialRampToValueAtTime()
+    AudioParam.setTargetAtTime()
+    AudioParam.setValueCurveAtTime()
+    AudioParam.cancelScheduledValues()
+    AudioParam.cancelAndHoldAtTime()
