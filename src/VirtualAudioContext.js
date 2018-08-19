@@ -44,6 +44,9 @@ class VirtualAudioContext {
       },
       stop: () => {
         events.add(EVENTS.CALL, 'stop', id, getCurrentTime())
+      },
+      setPeriodicWave: (waveTable) => {
+        events.add(EVENTS.CALL, 'setPeriodicWave', id, getCurrentTime(), [waveTable])
       }
     }
   }
@@ -73,6 +76,20 @@ class VirtualAudioContext {
         } else if (target === CTX_DESTINATION) {
           events.add(EVENTS.CONNECT, target, id, getCurrentTime())
         }
+      }
+    }
+  }
+  createPeriodicWave (...args) {
+    const id = this.uniqueIdGenerator.generate()
+    const events = this.events
+    // https://stackoverflow.com/a/4823030/1806628
+    const getCurrentTime = Object.getOwnPropertyDescriptor(VirtualAudioContext.prototype, 'currentTime').get.bind(this)
+
+    events.add(EVENTS.CREATE, 'periodicWave', id, getCurrentTime(), args)
+
+    return {
+      get id () {
+        return id
       }
     }
   }

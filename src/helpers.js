@@ -4,7 +4,8 @@ import {
   cond,
   propEq,
   assoc,
-  T
+  T,
+  apply
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -17,6 +18,7 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.CALL), cond([
     [propEq('param', 'start'), assoc('param', 'stop')],
     [propEq('param', 'stop'), assoc('param', 'start')],
+    [propEq('param', 'setPeriodicWave'), assoc('eventName', EVENTS.NOP)],
     [T, ({ param }) => {
       console.error(`unknown command ${param}`)
     }]
@@ -58,6 +60,11 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
           setNodeById(targetId, node, ctx)
         }
           break
+        case 'periodicWave': {
+          const node = apply(ctx.createPeriodicWave, args)
+          setNodeById(targetId, node, ctx)
+        }
+          break
         default: {
           console.error('unknown node type', param)
         }
@@ -86,6 +93,9 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
           break
         case 'stop':
           node.stop()
+          break
+        case 'setPeriodicWave':
+          apply(node.setPeriodicWave, args)
           break
         default: {
           console.error('unknown command', param)
