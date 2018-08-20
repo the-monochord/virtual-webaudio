@@ -115,9 +115,22 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
       break
     case EVENTS.DISCONNECT: {
       const node = getNodeById(targetId, ctx)
-      const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
 
-      node.disconnect(target)
+      if (param === null) {
+        node.disconnect()
+      } else if (param === CTX_DESTINATION) {
+        node.disconnect(ctx.destination)
+      } else {
+        const target = getNodeById(param, ctx)
+
+        if (args.length === 0) {
+          node.disconnect(target)
+        } else {
+          const property = target[args[0]]
+
+          node.disconnect(property)
+        }
+      }
     }
       break
     default: {
