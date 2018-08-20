@@ -18,8 +18,8 @@ import {
 // -------------
 
 const diff = (virtualCtxA, virtualCtxB) => {
-  const a = map(JSON.stringify, virtualCtxA.events.data)
-  const b = map(JSON.stringify, virtualCtxB.events.data)
+  const a = map(JSON.stringify, virtualCtxA._.events.data)
+  const b = map(JSON.stringify, virtualCtxB._.events.data)
 
   const removed = compose(
     reject(propEq('eventName', EVENTS.NOP)),
@@ -48,7 +48,7 @@ const patch = (eventsData, ctx) => {
 }
 
 const render = (virtualCtx, ctx) => {
-  patch(virtualCtx.events.data, ctx)
+  patch(virtualCtx._.events.data, ctx)
 }
 
 export {

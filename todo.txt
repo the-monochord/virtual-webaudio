@@ -35,11 +35,3 @@ Next POC to work on:
 
     oscillator.frequency -> AudioParam
     gain.gain -> AudioParam
-
-    AudioParam.setValueAtTime()
-    AudioParam.linearRampToValueAtTime()
-    AudioParam.exponentialRampToValueAtTime()
-    AudioParam.setTargetAtTime()
-    AudioParam.setValueCurveAtTime()
-    AudioParam.cancelScheduledValues()
-    AudioParam.cancelAndHoldAtTime()
