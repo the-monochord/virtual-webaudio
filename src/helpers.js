@@ -79,9 +79,20 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
       break
     case EVENTS.CONNECT: {
       const node = getNodeById(targetId, ctx)
-      const target = param === CTX_DESTINATION ? ctx.destination : getNodeById(param, ctx)
 
-      node.connect(target)
+      if (param === CTX_DESTINATION) {
+        node.connect(ctx.destination)
+      } else {
+        const target = getNodeById(param, ctx)
+
+        if (args.length === 0) {
+          node.connect(target)
+        } else {
+          const property = target[args[0]]
+
+          node.connect(property)
+        }
+      }
     }
       break
     case EVENTS.CALL: {
