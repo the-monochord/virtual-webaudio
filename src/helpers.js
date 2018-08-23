@@ -72,7 +72,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
       break
     case EVENTS.UPDATE: {
       const node = getNodeById(targetId, ctx)
-      const [key, value] = toPairs(args)[0]
+      const [key, value] = toPairs(args[0])[0]
 
       node[key].value = value
     }
@@ -102,7 +102,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
         case 'start':
         case 'stop':
         case 'setPeriodicWave':
-          apply(node[param], args)
+          apply(node[param].bind(node), args)
           break
         default: {
           console.error('unknown command', param)
