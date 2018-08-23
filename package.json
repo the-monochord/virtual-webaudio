@@ -5,6 +5,8 @@
   "description": "A virtual representation of the web audio api elements with added diffing and patching capabilities",
   "main": "src/index.js",
   "scripts": {
+    "build": "webpack",
+    "build:watch": "webpack --watch",
     "poc": "nodemon poc/server.js --watch poc -e js,html",
     "lint": "eslint src --fix",
     "stage-after-lint": "git add src",
@@ -31,6 +33,12 @@
   },
   "homepage": "https://github.com/the-monochord/virtual-webaudio#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-ramda": "^1.6.3",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-stage-3": "^6.24.1",
     "cz-conventional-changelog": "^2.1.0",
     "eslint": "^5.4.0",
     "eslint-config-standard": "^11.0.0",
@@ -42,7 +50,9 @@
     "nodemon": "^1.18.3",
     "pre-commit": "^1.2.2",
     "reload": "^2.3.1",
-    "semantic-release": "^15.9.9"
+    "semantic-release": "^15.9.9",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0"
   },
   "config": {
     "commitizen": {

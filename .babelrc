@@ -1,0 +1,9 @@
+{
+  "presets": [
+    "stage-3",
+    "env"
+  ],
+  "plugins": [
+    "ramda"
+  ]
+}
