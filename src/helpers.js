@@ -1,6 +1,5 @@
 import {
   curry,
-  toPairs,
   cond,
   propEq,
   assoc,
@@ -72,24 +71,21 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
       break
     case EVENTS.UPDATE: {
       const node = getNodeById(targetId, ctx)
-      const [key, value] = toPairs(args[0])[0]
-
-      node[key].value = value
+      node[param].value = args[0]
     }
       break
     case EVENTS.CONNECT: {
       const node = getNodeById(targetId, ctx)
 
-      if (param === CTX_DESTINATION) {
-        node.connect(ctx.destination)
-      } else {
-        const target = getNodeById(param, ctx)
-
-        if (args.length === 0) {
+      switch (param.length) {
+        case 1: {
+          const target = param[0] === CTX_DESTINATION ? ctx.destination : getNodeById(param[0], ctx)
           node.connect(target)
-        } else {
-          const property = target[args[0]]
-
+        }
+          break
+        case 2: {
+          const target = getNodeById(param[0], ctx)
+          const property = target[param[1]]
           node.connect(property)
         }
       }
@@ -116,18 +112,18 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
     case EVENTS.DISCONNECT: {
       const node = getNodeById(targetId, ctx)
 
-      if (param === null) {
-        node.disconnect()
-      } else if (param === CTX_DESTINATION) {
-        node.disconnect(ctx.destination)
-      } else {
-        const target = getNodeById(param, ctx)
-
-        if (args.length === 0) {
+      switch (param.length) {
+        case 0:
+          node.disconnect()
+          break
+        case 1: {
+          const target = param[0] === CTX_DESTINATION ? ctx.destination : getNodeById(param[0], ctx)
           node.disconnect(target)
-        } else {
-          const property = target[args[0]]
-
+        }
+          break
+        case 2: {
+          const target = getNodeById(param[0], ctx)
+          const property = target[param[1]]
           node.disconnect(property)
         }
       }

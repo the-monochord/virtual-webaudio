@@ -8,7 +8,7 @@ const create = () => {
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
 
-  osc.frequency.value = 200
+  osc.frequency.value = 300
 
   gain.gain.value = 0.5
 
@@ -26,7 +26,7 @@ const modify = () => {
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
 
-  osc.frequency.value = 200
+  osc.frequency.value = 300
 
   gain.gain.value = 0 // this is the line, that changed
 

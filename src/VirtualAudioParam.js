@@ -13,7 +13,7 @@ class VirtualAudioParam {
     return this._.defaultValue
   }
   set value (newValue) {
-    this._.ctx._.events.add(EVENTS.UPDATE, null, this._.nodeId, this._.ctx.currentTime, [{[this._.name]: newValue}])
+    this._.ctx._.events.add(EVENTS.UPDATE, this._.name, this._.nodeId, this._.ctx.currentTime, [newValue])
   }
 
   /*
