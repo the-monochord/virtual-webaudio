@@ -15,3 +15,5 @@ A virtual representation of the web audio api elements with added diffing and pa
 `poc/manual-lfo/` - Manual LFO, the volume is being changed periodically through an interval
 
 `poc/monosynth/` - Monosynth, a simple, 1 octave, monophonic synthesizer, that you can play with the keyboard
+
+`poc/envelope/` - a simple AD envelope, which utilizes scheduling of audio params

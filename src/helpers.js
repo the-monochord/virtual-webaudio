@@ -4,7 +4,8 @@ import {
   propEq,
   assoc,
   T,
-  apply
+  apply,
+  length
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -94,15 +95,41 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
     case EVENTS.CALL: {
       const node = getNodeById(targetId, ctx)
 
-      switch (param) {
-        case 'start':
-        case 'stop':
-        case 'setPeriodicWave':
-          apply(node[param].bind(node), args)
-          break
-        default: {
-          console.error('unknown command', param)
+      switch (length(param)) {
+        case 1: {
+          const [ command ] = param
+
+          switch (command) {
+            case 'start':
+            case 'stop':
+            case 'setPeriodicWave':
+              apply(node[command].bind(node), args)
+              break
+            default: {
+              console.error('unknown command', command)
+            }
+          }
         }
+          break
+        case 2: {
+          const [ paramName, command ] = param
+
+          switch (command) {
+            case 'setValueAtTime':
+            case 'linearRampToValueAtTime':
+            case 'exponentialRampToValueAtTime':
+            case 'setTargetAtTime':
+            case 'setValueCurveAtTime':
+            case 'cancelScheduledValues':
+            case 'cancelAndHoldAtTime':
+              apply(node[paramName][command].bind(node[paramName]), args)
+              break
+            default: {
+              console.error('unknown command', command)
+            }
+          }
+        }
+          break
       }
     }
       break

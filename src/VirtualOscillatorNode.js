@@ -15,13 +15,13 @@ class VirtualOscillatorNode extends VirtualAudioNode {
   }
 
   start (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, 'start', this._.id, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, ['start'], this._.id, this._.ctx.currentTime, args)
   }
   stop (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, 'stop', this._.id, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, ['stop'], this._.id, this._.ctx.currentTime, args)
   }
   setPeriodicWave (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, 'setPeriodicWave', this._.id, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, ['setPeriodicWave'], this._.id, this._.ctx.currentTime, args)
   }
 }
 
