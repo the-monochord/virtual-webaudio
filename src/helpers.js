@@ -44,9 +44,7 @@ const removeNodeById = (id, ctx) => {
 }
 
 const applyEventToContext = curry(({ targetId, eventName, param, time, args }, ctx) => {
-  console.log(targetId, eventName, param, time, args)
   // TODO: how to deal with time?
-
   switch (eventName) {
     case EVENTS.CREATE:
       switch (param) {
