@@ -7,7 +7,8 @@ const EVENTS = {
   CALL: 'CALL',
   REMOVE: 'REMOVE',
   NOP: 'NOP',
-  DISCONNECT: 'DISCONNECT'
+  DISCONNECT: 'DISCONNECT',
+  SET: 'SET'
 }
 
 export {

@@ -9,6 +9,7 @@ const sound = (frequency, volume) => {
   const gain = ctx.createGain()
 
   osc.frequency.value = frequency
+  osc.type = 'triangle'
 
   gain.gain.value = volume
 

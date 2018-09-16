@@ -75,6 +75,11 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
       node[param].value = args[0]
     }
       break
+    case EVENTS.SET: {
+      const node = getNodeById(targetId, ctx)
+      node[param] = args[0]
+    }
+      break
     case EVENTS.CONNECT: {
       const node = getNodeById(targetId, ctx)
 
