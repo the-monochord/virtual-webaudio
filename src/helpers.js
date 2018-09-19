@@ -15,6 +15,7 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.UPDATE), assoc('eventName', EVENTS.NOP)],
   [propEq('eventName', EVENTS.CONNECT), assoc('eventName', EVENTS.DISCONNECT)],
   [propEq('eventName', EVENTS.DISCONNECT), assoc('eventName', EVENTS.CONNECT)],
+  [propEq('eventName', EVENTS.SET), assoc('eventName', EVENTS.NOP)],
   [propEq('eventName', EVENTS.CALL), cond([
     [propEq('param', 'start'), assoc('param', 'stop')],
     [propEq('param', 'stop'), assoc('param', 'start')],
