@@ -5,7 +5,13 @@ import {
   assoc,
   T,
   apply,
-  length
+  length,
+  compose,
+  equals,
+  last,
+  prop,
+  evolve,
+  update
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -17,15 +23,15 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.DISCONNECT), assoc('eventName', EVENTS.CONNECT)],
   [propEq('eventName', EVENTS.SET), assoc('eventName', EVENTS.NOP)],
   [propEq('eventName', EVENTS.CALL), cond([
-    [propEq('param', 'start'), assoc('param', 'stop')],
-    [propEq('param', 'stop'), assoc('param', 'start')],
-    [propEq('param', 'setPeriodicWave'), assoc('eventName', EVENTS.NOP)],
+    [compose(equals('start'), last, prop('param')), evolve({ param: update(-1, 'stop') })],
+    [compose(equals('stop'), last, prop('param')), evolve({ param: update(-1, 'start') })],
+    [compose(equals('setPeriodicWave'), last, prop('param')), assoc('eventName', EVENTS.NOP)],
     [T, ({ param }) => {
-      console.error(`unknown command ${param}`)
+      console.error(`inverting: unknown command ${param}`)
     }]
   ])],
   [T, ({ eventName }) => {
-    console.error(`unknown event ${eventName}`)
+    console.error(`inverting: unknown event ${eventName}`)
   }]
 ])
 
