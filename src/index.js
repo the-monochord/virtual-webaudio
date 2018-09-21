@@ -12,7 +12,8 @@ import {
   without,
   propEq,
   concat,
-  __
+  __,
+  reverse
 } from 'ramda'
 
 // -------------
@@ -22,6 +23,7 @@ const diff = (virtualCtxA, virtualCtxB) => {
   const b = map(JSON.stringify, virtualCtxB._.events.data)
 
   const removed = compose(
+    reverse,
     reject(propEq('eventName', EVENTS.NOP)),
     map(compose(
       invertEvent,
