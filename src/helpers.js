@@ -15,6 +15,7 @@ import {
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
+import VirtualPeriodicWave from './VirtualPeriodicWave'
 
 const invertEvent = cond([
   [propEq('eventName', EVENTS.CREATE), assoc('eventName', EVENTS.REMOVE)],
@@ -115,9 +116,13 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
               apply(node[command].bind(node), args)
               break
             case 'setPeriodicWave':
-              const nodeId = args[0]._.id // args[0] is a VirtualPeriodicWave, but we need the real one
-              const argNode = getNodeById(nodeId, ctx)
-              node[command](argNode)
+              if (args[0] instanceof VirtualPeriodicWave) {
+                const nodeId = args[0]._.id // args[0] is a VirtualPeriodicWave, but we need the real one
+                const argNode = getNodeById(nodeId, ctx)
+                node[command](argNode)
+              } else {
+                node[command](args[0])
+              }
               break
             default: {
               console.error('unknown command', command)
