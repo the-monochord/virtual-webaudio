@@ -19,20 +19,17 @@ import {
 // -------------
 
 const diff = (virtualCtxA, virtualCtxB) => {
-  const a = map(JSON.stringify, virtualCtxA._.events.data)
-  const b = map(JSON.stringify, virtualCtxB._.events.data)
+  const a = virtualCtxA._.events.data
+  const b = virtualCtxB._.events.data
 
   const removed = compose(
     reverse,
     reject(propEq('eventName', EVENTS.NOP)),
-    map(compose(
-      invertEvent,
-      JSON.parse
-    )),
+    map(invertEvent),
     without
   )(b, a)
 
-  const added = map(JSON.parse, without(a, b))
+  const added = without(a, b)
 
   return concat(removed, added)
 }

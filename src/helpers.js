@@ -66,7 +66,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
         }
           break
         case 'periodicWave': {
-          const node = apply(ctx.createPeriodicWave, args)
+          const node = apply(ctx.createPeriodicWave.bind(ctx), args)
           setNodeById(targetId, node, ctx)
         }
           break
@@ -112,8 +112,12 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
           switch (command) {
             case 'start':
             case 'stop':
-            case 'setPeriodicWave':
               apply(node[command].bind(node), args)
+              break
+            case 'setPeriodicWave':
+              const nodeId = args[0]._.id // args[0] is a VirtualPeriodicWave, but we need the real one
+              const argNode = getNodeById(nodeId, ctx)
+              node[command](argNode)
               break
             default: {
               console.error('unknown command', command)

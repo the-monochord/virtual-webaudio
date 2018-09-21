@@ -7,7 +7,7 @@ class VirtualPeriodicWave {
       ctx
     }
 
-    this._.events.add(EVENTS.CREATE, 'periodicWave', id, this.currentTime, args)
+    ctx._.events.add(EVENTS.CREATE, 'periodicWave', id, ctx.currentTime, args)
   }
 }
 
