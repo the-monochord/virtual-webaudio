@@ -11,7 +11,9 @@ import {
   last,
   prop,
   evolve,
-  update
+  update,
+  contains,
+  __
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -26,7 +28,16 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.CALL), cond([
     [compose(equals('start'), last, prop('param')), evolve({ param: update(-1, 'stop') })],
     [compose(equals('stop'), last, prop('param')), evolve({ param: update(-1, 'start') })],
-    [compose(equals('setPeriodicWave'), last, prop('param')), assoc('eventName', EVENTS.NOP)],
+    [compose(contains(__, [
+      'setPeriodicWave',
+      'setValueAtTime',
+      'linearRampToValueAtTime',
+      'exponentialRampToValueAtTime',
+      'setTargetAtTime',
+      'setValueCurveAtTime',
+      'cancelScheduledValues',
+      'cancelAndHoldAtTime'
+    ]), last, prop('param')), assoc('eventName', EVENTS.NOP)],
     [T, ({ param }) => {
       console.error(`inverting: unknown command ${param}`)
     }]
@@ -108,7 +119,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
 
       switch (length(param)) {
         case 1: {
-          const [ command ] = param
+          const [command] = param
 
           switch (command) {
             case 'start':
@@ -131,7 +142,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
         }
           break
         case 2: {
-          const [ paramName, command ] = param
+          const [paramName, command] = param
 
           switch (command) {
             case 'setValueAtTime':
