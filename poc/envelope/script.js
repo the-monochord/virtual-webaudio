@@ -1,6 +1,6 @@
 /* global virtualWebaudio, AudioContext */
 
-const { VirtualAudioContext, patch, render, diff } = virtualWebaudio
+const { VirtualAudioContext, render } = virtualWebaudio
 
 const attackAndDecay = () => {
   const ctx = new VirtualAudioContext()

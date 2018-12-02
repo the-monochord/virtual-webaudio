@@ -11,11 +11,15 @@ class VirtualAudioContext {
     this._ = {
       uniqueIdGenerator: new UniqueIdGenerator(0),
       events: new Events(),
-      initialTime: Date.now()
+      initialTime: Date.now(),
+      unitOfTimeInSeconds: 0.02
     }
   }
   get currentTime () {
-    return Math.floor((Date.now() - this._.initialTime) / 10) * 10 // manual 10ms throttle
+    const { initialTime, unitOfTimeInSeconds } = this._
+    const realTimeInSeconds = (Date.now() - initialTime) / 1000
+    const throttle = unitOfTimeInSeconds * 1000
+    return Math.round(realTimeInSeconds * throttle) / throttle
   }
   get destination () {
     return CTX_DESTINATION

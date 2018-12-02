@@ -13,7 +13,15 @@ import {
   evolve,
   update,
   contains,
-  __
+  __,
+  startsWith,
+  is,
+  both,
+  add,
+  replace,
+  when,
+  map,
+  takeLast
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -28,16 +36,21 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.CALL), cond([
     [compose(equals('start'), last, prop('param')), evolve({ param: update(-1, 'stop') })],
     [compose(equals('stop'), last, prop('param')), evolve({ param: update(-1, 'start') })],
+    [compose(equals('setValueAtTime'), last, prop('param')), evolve({
+      param: update(-1, 'cancelScheduledValues'),
+      args: takeLast(1)
+    })],
     [compose(contains(__, [
       'setPeriodicWave',
-      'setValueAtTime',
       'linearRampToValueAtTime',
       'exponentialRampToValueAtTime',
       'setTargetAtTime',
       'setValueCurveAtTime',
       'cancelScheduledValues',
       'cancelAndHoldAtTime'
-    ]), last, prop('param')), assoc('eventName', EVENTS.NOP)],
+    ]), last, prop('param')), ({ param }) => {
+      console.warn(`inverting: inversion has not yet been implemented for ${param}`)
+    }],
     [T, ({ param }) => {
       console.error(`inverting: unknown command ${param}`)
     }]
@@ -61,6 +74,19 @@ const setNodeById = (id, node, ctx) => {
 const removeNodeById = (id, ctx) => {
   delete ctx._nodes[id]
 }
+
+const TIME_MARK = '{{currentTime}}'
+
+const markTimeArg = arg => TIME_MARK + ' + ' + arg
+
+const parseTimeArg = curry((time, arg) => when(
+  both(is(String), startsWith(TIME_MARK + ' + ')),
+  compose(
+    add(time),
+    parseFloat,
+    replace(TIME_MARK + ' + ', '')
+  )
+)(arg))
 
 const applyEventToContext = curry(({ targetId, eventName, param, time, args }, ctx) => {
   // TODO: how to deal with time?
@@ -152,7 +178,7 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
             case 'setValueCurveAtTime':
             case 'cancelScheduledValues':
             case 'cancelAndHoldAtTime':
-              apply(node[paramName][command].bind(node[paramName]), args)
+              apply(node[paramName][command].bind(node[paramName]), map(parseTimeArg(time), args))
               break
             default: {
               console.error('unknown command', command)
@@ -197,5 +223,7 @@ export {
   getNodeById,
   setNodeById,
   removeNodeById,
+  markTimeArg,
+  parseTimeArg,
   applyEventToContext
 }

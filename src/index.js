@@ -35,11 +35,10 @@ const diff = (virtualCtxA, virtualCtxB) => {
 }
 
 const patch = (eventsData, ctx) => {
-  const now = Date.now()
+  const now = ctx.currentTime
 
   compose(
     forEach(applyEventToContext(__, ctx)),
-    // TODO: SORT BY targetId, time DESC
     map(evolve({
       time: add(now)
     }))

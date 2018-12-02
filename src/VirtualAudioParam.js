@@ -1,4 +1,6 @@
 import { EVENTS } from './constants'
+import { markTimeArg } from './helpers'
+import { adjust } from 'ramda'
 
 class VirtualAudioParam {
   constructor (nodeId, ctx, name, defaultValue) {
@@ -17,7 +19,7 @@ class VirtualAudioParam {
   }
 
   setValueAtTime (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'setValueAtTime'], this._.nodeId, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'setValueAtTime'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 1, args))
   }
   linearRampToValueAtTime (...args) {
     this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'linearRampToValueAtTime'], this._.nodeId, this._.ctx.currentTime, args)
