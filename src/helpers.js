@@ -21,7 +21,8 @@ import {
   replace,
   when,
   map,
-  takeLast
+  lt,
+  always
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -36,18 +37,22 @@ const invertEvent = cond([
   [propEq('eventName', EVENTS.CALL), cond([
     [compose(equals('start'), last, prop('param')), evolve({ param: update(-1, 'stop') })],
     [compose(equals('stop'), last, prop('param')), evolve({ param: update(-1, 'start') })],
-    [compose(equals('setValueAtTime'), last, prop('param')), evolve({
-      param: update(-1, 'cancelScheduledValues'),
-      args: takeLast(1)
-    })],
     [compose(contains(__, [
       'setPeriodicWave',
-      'linearRampToValueAtTime',
-      'exponentialRampToValueAtTime',
-      'setTargetAtTime',
-      'setValueCurveAtTime',
       'cancelScheduledValues',
       'cancelAndHoldAtTime'
+    ]), last, prop('param')), assoc('eventName', EVENTS.NOP)],
+    [compose(contains(__, [
+      'setValueAtTime',
+      'linearRampToValueAtTime',
+      'exponentialRampToValueAtTime'
+    ]), last, prop('param')), evolve({
+      param: update(-1, 'cancelAndHoldAtTime'),
+      args: () => [markTimeArg(-1)]
+    })],
+    [compose(contains(__, [
+      'setTargetAtTime',
+      'setValueCurveAtTime'
     ]), last, prop('param')), ({ param }) => {
       console.warn(`inverting: inversion has not yet been implemented for ${param}`)
     }],
@@ -82,6 +87,7 @@ const markTimeArg = arg => TIME_MARK + ' + ' + arg
 const parseTimeArg = curry((time, arg) => when(
   both(is(String), startsWith(TIME_MARK + ' + ')),
   compose(
+    when(lt(__, 0), always(0)),
     add(time),
     parseFloat,
     replace(TIME_MARK + ' + ', '')

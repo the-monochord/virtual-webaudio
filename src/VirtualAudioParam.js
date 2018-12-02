@@ -22,10 +22,10 @@ class VirtualAudioParam {
     this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'setValueAtTime'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 1, args))
   }
   linearRampToValueAtTime (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'linearRampToValueAtTime'], this._.nodeId, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'linearRampToValueAtTime'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 1, args))
   }
   exponentialRampToValueAtTime (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'exponentialRampToValueAtTime'], this._.nodeId, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'exponentialRampToValueAtTime'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 1, args))
   }
   setTargetAtTime (...args) {
     this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'setTargetAtTime'], this._.nodeId, this._.ctx.currentTime, args)
@@ -34,10 +34,10 @@ class VirtualAudioParam {
     this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'setValueCurveAtTime'], this._.nodeId, this._.ctx.currentTime, args)
   }
   cancelScheduledValues (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'cancelScheduledValues'], this._.nodeId, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'cancelScheduledValues'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 0, args))
   }
   cancelAndHoldAtTime (...args) {
-    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'cancelAndHoldAtTime'], this._.nodeId, this._.ctx.currentTime, args)
+    this._.ctx._.events.add(EVENTS.CALL, [this._.name, 'cancelAndHoldAtTime'], this._.nodeId, this._.ctx.currentTime, adjust(markTimeArg, 0, args))
   }
 }
 
