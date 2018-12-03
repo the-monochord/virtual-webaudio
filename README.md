@@ -93,3 +93,7 @@ The repo contains some examples, which can be viewed by installing the repo loca
 `poc/monosynth/` - Monosynth, a simple, 1 octave, monophonic synthesizer, that you can play with the keyboard
 
 `poc/envelope/` - a simple AD envelope, which utilizes scheduling of audio params
+
+`poc/delayed-monosynth/` - Same as the monosynth demo, but the effects of changes are delayed with setValueAtTime()
+
+`poc/envelope-monosynth/` - Same as the monosynth demo, but it adds a simple envelope to the pressed notes
