@@ -45,17 +45,13 @@ const invertEvent = cond([
     [compose(contains(__, [
       'setValueAtTime',
       'linearRampToValueAtTime',
-      'exponentialRampToValueAtTime'
+      'exponentialRampToValueAtTime',
+      'setTargetAtTime',
+      'setValueCurveAtTime'
     ]), last, prop('param')), evolve({
       param: update(-1, 'cancelAndHoldAtTime'),
       args: () => [markTimeArg(-1)]
     })],
-    [compose(contains(__, [
-      'setTargetAtTime',
-      'setValueCurveAtTime'
-    ]), last, prop('param')), ({ param }) => {
-      console.warn(`inverting: inversion has not yet been implemented for ${param}`)
-    }],
     [T, ({ param }) => {
       console.error(`inverting: unknown command ${param}`)
     }]
