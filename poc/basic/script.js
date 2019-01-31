@@ -38,10 +38,14 @@ const modify = () => {
   return ctx
 }
 
+let ctx
+const a = create()
+const b = modify()
+
 const demo = () => {
-  const a = create()
-  const b = modify()
-  const ctx = new AudioContext()
+  if (!ctx) {
+    ctx = new AudioContext()
+  }
 
   render(a, ctx)
 

@@ -1,4 +1,4 @@
-/* global virtualWebaudio, AudioContext */
+/* global virtualWebaudio, AudioContext, throttle */
 
 const { VirtualAudioContext, render } = virtualWebaudio
 
@@ -24,7 +24,11 @@ const attackAndDecay = () => {
   return ctx
 }
 
-const note = attackAndDecay()
 const ctx = new AudioContext()
+const note = attackAndDecay()
 
-render(note, ctx)
+const demo = () => {
+  render(note, ctx)
+}
+
+document.getElementsByTagName('button')[0].addEventListener('click', throttle(demo, 3000))

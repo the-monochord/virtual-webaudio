@@ -20,8 +20,6 @@ const sound = (frequency, volume) => {
   return ctx
 }
 
-const ctx = new AudioContext()
-
 let old = null
 
 const change = (virtualCtx, ctx) => {
@@ -34,23 +32,43 @@ const change = (virtualCtx, ctx) => {
   old = virtualCtx
 }
 
-let masterVolume = 1
+let ctx
+let masterVolume = 0
 let lfoDirection = '+'
+let inited = false
+let running = false
 
-setInterval(() => {
-  if (lfoDirection === '+') {
-    masterVolume += 0.03
-    if (masterVolume > 0.9) {
-      lfoDirection = '-'
-    }
-  } else {
-    masterVolume -= 0.03
-    if (masterVolume < 0.1) {
-      lfoDirection = '+'
-    }
+const demo = () => {
+  if (!ctx) {
+    ctx = new AudioContext()
   }
 
-  change(sound(440, masterVolume), ctx)
-}, 30)
+  if (!inited) {
+    inited = true
+    setInterval(() => {
+      if (running) {
+        if (lfoDirection === '+') {
+          masterVolume += 0.03
+          if (masterVolume > 0.9) {
+            lfoDirection = '-'
+          }
+        } else {
+          masterVolume -= 0.03
+          if (masterVolume < 0.1) {
+            lfoDirection = '+'
+          }
+        }
+      } else {
+        masterVolume = 0
+      }
 
-change(sound(440, masterVolume), ctx)
+      change(sound(440, masterVolume), ctx)
+    }, 30)
+
+    change(sound(440, masterVolume), ctx)
+  }
+
+  running = !running
+}
+
+document.getElementsByTagName('button')[0].addEventListener('click', demo)
