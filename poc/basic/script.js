@@ -1,4 +1,4 @@
-/* global virtualWebaudio, AudioContext */
+/* global virtualWebaudio, AudioContext, throttle */
 
 const { VirtualAudioContext, patch, render, diff } = virtualWebaudio
 
@@ -38,12 +38,17 @@ const modify = () => {
   return ctx
 }
 
-const a = create()
-const b = modify()
-const ctx = new AudioContext()
+const demo = () => {
+  const a = create()
+  const b = modify()
+  const ctx = new AudioContext()
 
-render(a, ctx)
-setTimeout(() => {
-  console.log('a second later:')
-  patch(diff(a, b), ctx) // should turn off the gain's volume
-}, 1000)
+  render(a, ctx)
+
+  setTimeout(() => {
+    // turn off gain volume after a second
+    patch(diff(a, b), ctx)
+  }, 1000)
+}
+
+document.getElementsByTagName('button')[0].addEventListener('click', throttle(demo, 1000))
