@@ -53,8 +53,7 @@ const keyMap = {
   K: 12
 }
 
-const ctx = new AudioContext()
-
+let ctx
 let old = null
 
 const change = (virtualCtx, ctx) => {
@@ -87,6 +86,11 @@ const keyPressed = {
 }
 
 document.body.addEventListener('keydown', e => {
+  if (!ctx) {
+    ctx = new AudioContext()
+    // setting initial volume to 0
+    change(sound(0, 0, 0), ctx)
+  }
   const pressedChar = String.fromCharCode(e.keyCode)
   if (!keyPressed[pressedChar]) {
     keyPressed[pressedChar] = true
@@ -115,6 +119,3 @@ document.body.addEventListener('keyup', e => {
     }
   }
 })
-
-// setting initial volume to 0
-change(sound(0, 0, 0), ctx)
