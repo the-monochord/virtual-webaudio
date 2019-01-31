@@ -94,16 +94,4 @@ document.body.addEventListener('click', demo)
 
 ## Demos
 
-The repo contains some examples, which can be viewed by installing the repo locally and by executing `npm run poc`. This will create a local webserver, allowing you to open the following paths and view the demos:
-
-`poc/basic/` - Basic example, turning a sound on, then off after a second
-
-`poc/manual-lfo/` - Manual LFO, the volume is being changed periodically through an interval
-
-`poc/monosynth/` - Monosynth, a simple, 1 octave, monophonic synthesizer, that you can play with the keyboard
-
-`poc/envelope/` - a simple AD envelope, which utilizes scheduling of audio params
-
-`poc/delayed-monosynth/` - Same as the monosynth demo, but the effects of changes are delayed with setValueAtTime()
-
-`poc/envelope-monosynth/` - Same as the monosynth demo, but it adds a simple envelope to the pressed notes
+The repo contains some examples, which can be viewed by installing the repo locally and by executing `npm run poc`. This will create a local webserver, allowing you to open the demos via `http://localhost:3000`
