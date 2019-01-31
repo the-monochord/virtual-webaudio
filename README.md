@@ -67,19 +67,29 @@ const modify = () => {
   return ctx
 }
 
-// get the 2 virtual contexts and create a real AudioContext
+// get the 2 virtual contexts and reserve variable for the real AudioContext
 const a = create()
 const b = modify()
-const ctx = new AudioContext()
+let ctx
 
-// render the 1st virtual context
-render(a, ctx)
+// AudioContext needs to be initialized through user interaction
+const demo = () => {
+  if(!ctx){
+    ctx = new AudioContext()
+  }
 
-// wait for a second
-setTimeout(() => {
-  // find all the stuff, that have changed in b and apply the changes to the real context
-  patch(diff(a, b), ctx)
-}, 1000)
+  // render the 1st virtual context
+  render(a, ctx)
+
+  // wait for a second
+  setTimeout(() => {
+    // find all the stuff, that have changed in b and apply the changes to the real context
+    patch(diff(a, b), ctx)
+  }, 1000)
+}
+
+// bind the demo to clicking on the webpage
+document.body.addEventListener('click', demo)
 ```
 
 ## Demos
