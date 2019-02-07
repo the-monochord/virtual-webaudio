@@ -5,6 +5,7 @@ import Events from './Events'
 import VirtualOscillatorNode from './VirtualOscillatorNode'
 import VirtualGainNode from './VirtualGainNode'
 import VirtualPeriodicWave from './VirtualPeriodicWave'
+import VirtualDelayNode from './VirtualDelayNode'
 
 class VirtualAudioContext {
   constructor () {
@@ -37,7 +38,12 @@ class VirtualAudioContext {
   createChannelSplitter()
   createConstantSource()
   createConvolver()
-  createDelay()
+  */
+  createDelay (maxDelayTime = 1) {
+    const id = this._.uniqueIdGenerator.generate()
+    return new VirtualDelayNode(id, this, maxDelayTime)
+  }
+  /*
   createDynamicsCompressor()
   */
   createGain () {

@@ -110,6 +110,11 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
           setNodeById(targetId, node, ctx)
         }
           break
+        case 'delay': {
+          const node = apply(ctx.createDelay.bind(ctx), args)
+          setNodeById(targetId, node, ctx)
+        }
+          break
         default: {
           console.error('unknown node type', param)
         }
