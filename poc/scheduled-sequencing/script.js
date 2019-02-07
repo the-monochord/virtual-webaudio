@@ -1,4 +1,4 @@
-/* global virtualWebaudio, AudioContext, once */
+/* global virtualWebaudio, AudioContext, OfflineAudioContext, once, makeDownload */
 
 const { VirtualAudioContext, render } = virtualWebaudio
 
@@ -35,10 +35,20 @@ const create = () => {
 
 const a = create()
 
-const demo = () => {
-  const ctx = new AudioContext()
-
-  render(a, ctx)
+const playDemo = () => {
+  render(a, new AudioContext())
 }
 
-document.getElementsByTagName('button')[0].addEventListener('click', once(demo))
+const renderDemo = () => {
+  const ctx = new OfflineAudioContext(1, 44100 * 5, 44100)
+
+  render(a, ctx)
+  ctx.startRendering().then(abuffer => {
+    makeDownload(abuffer, ctx.length, 'scheduled-playback')
+  }).catch(e => {
+    console.error(e)
+  })
+}
+
+document.getElementById('play').addEventListener('click', once(playDemo))
+document.getElementById('render').addEventListener('click', once(renderDemo))

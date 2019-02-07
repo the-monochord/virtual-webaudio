@@ -32,7 +32,7 @@ const demo = () => {
 
   render(a, ctx)
   ctx.startRendering().then(abuffer => {
-    makeDownload(abuffer, ctx.length)
+    makeDownload(abuffer, ctx.length, 'offline-audio-context')
   }).catch(e => {
     console.error(e)
   })
