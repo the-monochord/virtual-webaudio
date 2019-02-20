@@ -16,6 +16,14 @@ class VirtualAudioContext {
       unitOfTimeInSeconds: 0.02
     }
   }
+
+  __disableDiff () {
+    this._.events.randomize = true
+  }
+  __enableDiff () {
+    this._.events.randomize = false
+  }
+
   get currentTime () {
     const { initialTime, unitOfTimeInSeconds } = this._
     const realTimeInSeconds = (Date.now() - initialTime) / 1000

@@ -92,6 +92,36 @@ const demo = () => {
 document.body.addEventListener('click', demo)
 ```
 
+## Disabling diff for certain lines with __disableDiff
+
+By default, the diff tool removes every event from the new virtual context, which is identical to what you had in the first virtual context.
+But sometimes you can't define some changes via additions, but by introducing unnecessary complexity to the code.
+
+An example of an issue with this can be seen in `poc/timed-sequencing`, where a virtual context contains the instructions necessary to trigger a note.
+We have scheduled every step of the gain envelope, which would be played on every trigger call.
+Viewing the method calls, their parameters and their order of execution from a diffing tool's perspective shows us, that it will never change, so the diff tool will remove it.
+
+To solve this and mark some method calls always run, we can call the virtual context's `__disableDiff` metho to mark subsequent calls always different from the previous ones. Calling `__enableDiff` will re-enable diffing.
+
+```javascript
+const ctx = new VirtualAudioContext()
+
+// ...
+
+const gain = ctx.createGain()
+gain.gain.value = 0
+
+ctx.__disableDiff()
+gain.gain.cancelAndHoldAtTime(ctx.currentTime)
+gain.gain.linearRampToValueAtTime(1, ctx.currentTime + 0.1)
+gain.gain.lineraRampToValueAtTime(0, ctx.currentTime + 1)
+ctx.__enableDiff()
+
+gain.connect(ctx.destination)
+
+// ...
+```
+
 ## Demos
 
 The repo contains some examples, which can be viewed by installing the repo locally and by executing `npm run poc`. This will create a local webserver, allowing you to open the demos via `http://localhost:3000`
