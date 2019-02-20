@@ -1,5 +1,5 @@
 import VirtualAudioContext from './VirtualAudioContext'
-import { invertEvent, applyEventToContext } from './helpers'
+import { invertEvent, applyEventToContext, optimize } from './helpers'
 import { EVENTS } from './constants'
 
 import {
@@ -31,7 +31,7 @@ const diff = (virtualCtxA, virtualCtxB) => {
 
   const added = without(a, b)
 
-  return concat(removed, added)
+  return optimize(concat(removed, added))
 }
 
 const patch = (eventsData, ctx) => {
@@ -46,12 +46,13 @@ const patch = (eventsData, ctx) => {
 }
 
 const render = (virtualCtx, ctx) => {
-  patch(virtualCtx._.events.data, ctx)
+  patch(optimize(virtualCtx._.events.data), ctx)
 }
 
 export {
   VirtualAudioContext,
   diff,
   patch,
-  render
+  render,
+  optimize
 }

@@ -22,7 +22,11 @@ import {
   when,
   map,
   lt,
-  always
+  always,
+  reduce,
+  unless,
+  eqBy,
+  append
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
@@ -50,7 +54,7 @@ const invertEvent = cond([
       'setValueCurveAtTime'
     ]), last, prop('param')), evolve({
       param: update(-1, 'cancelAndHoldAtTime'),
-      args: () => [markTimeArg(-1)]
+      args: () => [markTimeArg(0)]
     })],
     [T, ({ param }) => {
       console.error(`inverting: unknown command ${param}`)
@@ -225,6 +229,12 @@ const applyEventToContext = curry(({ targetId, eventName, param, time, args }, c
   }
 })
 
+const collapseSameEvents = reduce((acc, curr) => unless(compose(eqBy(JSON.stringify, curr), last), append(curr))(acc), [])
+
+const optimize = compose(
+  collapseSameEvents
+)
+
 export {
   invertEvent,
   getNodeById,
@@ -232,5 +242,7 @@ export {
   removeNodeById,
   markTimeArg,
   parseTimeArg,
-  applyEventToContext
+  applyEventToContext,
+  collapseSameEvents,
+  optimize
 }
