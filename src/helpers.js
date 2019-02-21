@@ -26,13 +26,16 @@ import {
   reduce,
   unless,
   eqBy,
-  append
+  append,
+  not,
+  isNil
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
 import VirtualPeriodicWave from './VirtualPeriodicWave'
 
 const invertEvent = cond([
+  [compose(not, isNil, prop('rnd')), assoc('eventName', EVENTS.NOP)],
   [propEq('eventName', EVENTS.CREATE), assoc('eventName', EVENTS.REMOVE)],
   [propEq('eventName', EVENTS.UPDATE), assoc('eventName', EVENTS.NOP)],
   [propEq('eventName', EVENTS.CONNECT), assoc('eventName', EVENTS.DISCONNECT)],

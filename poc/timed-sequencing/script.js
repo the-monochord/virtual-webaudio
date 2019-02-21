@@ -16,7 +16,6 @@ const trigger = frequency => {
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
 
-  osc.frequency.linearRampToValueAtTime(frequency, ctx.currentTime + 0.01)
   osc.type = 'triangle'
 
   gain.gain.value = 0
