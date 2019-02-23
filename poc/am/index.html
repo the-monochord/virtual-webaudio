@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Amplitude modulation (AM)</title>
+</head>
+<body>
+  <nav>
+    <a href="/">demo index</a> » <b>am</b>
+  </nav>
+  <h2>play a sound with adjustable tremolo/ring modulator</h2>
+  <button id="toggle-sound">toggle sound</button><br />
+  Base: [100 <input id="base-frequency" type="range" min="100" max="1000" step="1" value="440" /> 1000] Hz<br />
+  AM: [0 <input id="am-frequency" type="range" min="0" max="1000" step="1" value="40" /> 1000] Hz<br />
+  <pre id="base-frequency-value">Base: 440 Hz</pre>
+  <pre id="am-frequency-value">AM: 40 Hz</pre>
+  <script src="//cdn.jsdelivr.net/npm/ramda@latest/dist/ramda.min.js"></script>
+  <script src="../common/virtual-webaudio.js"></script>
+  <script src="../common/helpers.js"></script>
+  <script src="./script.js"></script>
+  <script src="/reload/reload.js"></script>
+</body>
+</html>
