@@ -78,6 +78,7 @@ class VirtualAudioContext {
   createWaveShaper()
   decodeAudioData()
   resume()
+  suspend()
   */
 }
 
