@@ -1,18 +1,12 @@
 import {
   curry,
-  cond,
-  propEq,
   assoc,
-  T,
   apply,
   length,
   compose,
-  equals,
   last,
-  prop,
   evolve,
   update,
-  contains,
   __,
   startsWith,
   is,
@@ -27,46 +21,63 @@ import {
   unless,
   eqBy,
   append,
-  not,
   isNil
 } from 'ramda'
 
 import { CTX_DESTINATION, EVENTS } from './constants'
 import VirtualPeriodicWave from './VirtualPeriodicWave'
 
-const invertEvent = cond([
-  [compose(not, isNil, prop('rnd')), assoc('eventName', EVENTS.NOP)],
-  [propEq('eventName', EVENTS.CREATE), assoc('eventName', EVENTS.REMOVE)],
-  [propEq('eventName', EVENTS.UPDATE), assoc('eventName', EVENTS.NOP)],
-  [propEq('eventName', EVENTS.CONNECT), assoc('eventName', EVENTS.DISCONNECT)],
-  [propEq('eventName', EVENTS.DISCONNECT), assoc('eventName', EVENTS.CONNECT)],
-  [propEq('eventName', EVENTS.SET), assoc('eventName', EVENTS.NOP)],
-  [propEq('eventName', EVENTS.CALL), cond([
-    [compose(equals('start'), last, prop('param')), evolve({ param: update(-1, 'stop') })],
-    [compose(equals('stop'), last, prop('param')), evolve({ param: update(-1, 'start') })],
-    [compose(contains(__, [
-      'setPeriodicWave',
-      'cancelScheduledValues',
-      'cancelAndHoldAtTime'
-    ]), last, prop('param')), assoc('eventName', EVENTS.NOP)],
-    [compose(contains(__, [
-      'setValueAtTime',
-      'linearRampToValueAtTime',
-      'exponentialRampToValueAtTime',
-      'setTargetAtTime',
-      'setValueCurveAtTime'
-    ]), last, prop('param')), evolve({
-      param: update(-1, 'cancelAndHoldAtTime'),
-      args: () => [markTimeArg(0)]
-    })],
-    [T, ({ param }) => {
-      console.error(`inverting: unknown command ${param}`)
-    }]
-  ])],
-  [T, ({ eventName }) => {
-    console.error(`inverting: unknown event ${eventName}`)
-  }]
-])
+const invertCall = event => {
+  const lastParam = last(event.param)
+
+  switch (lastParam) {
+    case 'start':
+      return evolve({ param: update(-1, 'stop') }, event)
+    case 'stop':
+      return evolve({ param: update(-1, 'start') }, event)
+    case 'setPeriodicWave':
+    case 'cancelScheduledValues':
+    case 'cancelAndHoldAtTime':
+      return assoc('eventName', EVENTS.NOP, event)
+    case 'setValueAtTime':
+    case 'linearRampToValueAtTime':
+    case 'exponentialRampToValueAtTime':
+    case 'setTargetAtTime':
+    case 'setValueCurveAtTime':
+      return evolve({
+        param: update(-1, 'cancelAndHoldAtTime'),
+        args: () => [markTimeArg(0)]
+      }, event)
+    default:
+      console.error(`inverting: unknown command ${lastParam}`)
+      return assoc('eventName', EVENTS.NOP, event)
+  }
+}
+
+const invertEvent = event => {
+  if (!isNil(event.rnd)) {
+    return assoc('eventName', EVENTS.NOP, event)
+  } else {
+    switch (event.eventName) {
+      case EVENTS.CREATE:
+        return assoc('eventName', EVENTS.REMOVE, event)
+      case EVENTS.UPDATE:
+        return assoc('eventName', EVENTS.NOP, event)
+      case EVENTS.CONNECT:
+        return assoc('eventName', EVENTS.DISCONNECT, event)
+      case EVENTS.DISCONNECT:
+        return assoc('eventName', EVENTS.CONNECT, event)
+      case EVENTS.SET:
+        return assoc('eventName', EVENTS.NOP, event)
+      case EVENTS.CALL:
+        return invertCall(event)
+      default: {
+        console.error(`inverting: unknown event ${event.eventName}`)
+        return assoc('eventName', EVENTS.NOP, event)
+      }
+    }
+  }
+}
 
 const getNodeById = (id, ctx) => {
   return ctx._nodes[id]
